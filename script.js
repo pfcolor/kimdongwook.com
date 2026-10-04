@@ -23,7 +23,8 @@ function renderBooks(books) {
   container.innerHTML = books.map(b => {
     const cover = `<img class="cover${b.forthcoming ? ' forthcoming' : ''}" src="${b.cover}" alt="${b.title} 표지" loading="lazy">`;
     const titleText = b.link ? `<a href="${b.link}" target="_blank" rel="noopener">${b.title}</a>` : b.title;
-    const sub = b.forthcoming ? `${b.publisher} · 출간 예정` : `${b.publisher} · ${formatDate(b.date)}`;
+    const afterword = b.afterword ? ` · <a class="afterword-link" href="#afterword-${b.afterword}" aria-haspopup="dialog">옮긴이 후기</a>` : '';
+    const sub = (b.forthcoming ? `${b.publisher} · 출간 예정` : `${b.publisher} · ${formatDate(b.date)}`) + afterword;
     return `
     <div class="book">
       ${b.link
@@ -100,6 +101,95 @@ function initReveal(btn) {
   render();
 }
 
+// 원어 병기: 한글 바로 뒤에 띄어쓰기 없이 붙은 영문(예: 일어서자Stand Up to Racism)을 작은 글씨로
+function smallGloss(html) {
+  return html.replace(/([가-힣])([A-Za-z][A-Za-z0-9 .,'\-]*[A-Za-z0-9.])/g, '$1<span class="gloss" lang="en">$2</span>');
+}
+
+// 옮긴이 후기 패널. 주소에 #afterword-<slug>를 남겨서
+// 뒤로가기(모바일 스와이프 포함)로 패널만 닫히고, 링크로 바로 열 수도 있게 함.
+function initAfterword(books) {
+  const dialog = document.getElementById('afterword');
+  const scroller = dialog.querySelector('.afterword-scroll');
+  const body = dialog.querySelector('.afterword-body');
+  const bySlug = Object.fromEntries(books.filter(b => b.afterword).map(b => [b.afterword, b]));
+  const cache = {};
+  let trigger = null;
+
+  const slugFromHash = () => {
+    const m = location.hash.match(/^#afterword-(.+)$/);
+    return m && bySlug[decodeURIComponent(m[1])] ? decodeURIComponent(m[1]) : null;
+  };
+
+  async function fill(book) {
+    dialog.querySelector('.afterword-cover').src = book.cover;
+    dialog.querySelector('.afterword-title').textContent = book.title;
+    dialog.querySelector('.afterword-sub').innerHTML =
+      `${escapeHtml(book.publisher)} · ${formatDate(book.date)}` +
+      (book.link ? ` · <a href="${book.link}" target="_blank" rel="noopener" aria-label="책 구입 (새 창에서 열림)">책 구입 ↗</a>` : '');
+    body.innerHTML = '<p class="loading-state">불러오는 중…</p>';
+    try {
+      if (!cache[book.afterword]) {
+        const res = await fetch(`data/afterwords/${book.afterword}.md`);
+        if (!res.ok) throw new Error('불러오기 실패');
+        cache[book.afterword] = await res.text();
+      }
+      // 제목(# …) 줄은 빼고, 빈 줄이 아닌 각 줄을 한 문단으로
+      body.innerHTML = cache[book.afterword].split('\n')
+        .map(line => line.trim())
+        .filter(line => line && !line.startsWith('#'))
+        .map(line => `<p>${smallGloss(escapeHtml(line))}</p>`)
+        .join('');
+    } catch (err) {
+      console.error(err);
+      body.innerHTML = '<p class="afterword-error">후기를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>';
+    }
+  }
+
+  function open(slug, push) {
+    const book = bySlug[slug];
+    if (!book) return;
+    if (push) history.pushState({ afterword: slug }, '', `#afterword-${slug}`);
+    fill(book);
+    if (!dialog.open) dialog.showModal();
+    scroller.scrollTop = 0;
+    scroller.focus({ preventScroll: true });
+    if (typeof gtag === 'function') gtag('event', 'afterword_open', { book: slug });
+  }
+
+  document.getElementById('book-list').addEventListener('click', e => {
+    const link = e.target.closest('.afterword-link');
+    if (!link || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    trigger = link;
+    open(link.getAttribute('href').replace('#afterword-', ''), true);
+  });
+
+  // X 버튼, 맨 아래 버튼, 바깥(배경) 클릭, Esc 모두 결국 dialog.close() → 'close' 이벤트로 모임
+  dialog.querySelector('.afterword-close').addEventListener('click', () => dialog.close());
+  dialog.querySelector('.afterword-back').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+
+  dialog.addEventListener('close', () => {
+    if (history.state && history.state.afterword) {
+      history.back();
+    } else if (slugFromHash()) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    if (trigger && document.contains(trigger)) trigger.focus({ preventScroll: true });
+    trigger = null;
+  });
+
+  window.addEventListener('popstate', () => {
+    const slug = slugFromHash();
+    if (slug) open(slug, false);
+    else if (dialog.open) dialog.close();
+  });
+
+  const initial = slugFromHash();
+  if (initial) open(initial, false);
+}
+
 function updateCounts() {
   document.querySelectorAll('[data-count-for]').forEach(el => {
     const target = document.querySelector(el.dataset.countFor);
@@ -150,6 +240,7 @@ async function init() {
   articles.sort(byDateDesc);
 
   renderBooks(books);
+  initAfterword(books);
   renderList('paper-list', papers);
   renderList('article-list', articles);
 
