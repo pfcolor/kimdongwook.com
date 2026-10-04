@@ -386,20 +386,9 @@ html:has(.afterword[open]){ overflow:hidden; }
   word-break:keep-all;
   overflow-wrap:break-word;
 }
+.afterword-body p:last-child{ margin-bottom:0; }
 .afterword-body .gloss{ font-size:0.8em; margin-left:0.1em; }
 .afterword-body .loading-state, .afterword-body .afterword-error{ color:var(--ink-soft); font-size:14px; }
-.afterword-back{
-  display:block;
-  margin-top:48px;
-  padding:0;
-  border:none;
-  background:none;
-  font-family:inherit;
-  font-size:13.5px;
-  color:var(--ink-soft);
-  cursor:pointer;
-}
-.afterword-back:hover{ color:var(--accent); }
 @media (max-width:600px){
   .afterword{ border-left:none; }
   .afterword-bar{ padding:8px 10px 8px 20px; }

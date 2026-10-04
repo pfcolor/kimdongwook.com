@@ -165,9 +165,8 @@ function initAfterword(books) {
     open(link.getAttribute('href').replace('#afterword-', ''), true);
   });
 
-  // X 버튼, 맨 아래 버튼, 바깥(배경) 클릭, Esc 모두 결국 dialog.close() → 'close' 이벤트로 모임
+  // X 버튼, 바깥(배경) 클릭, Esc 모두 결국 dialog.close() → 'close' 이벤트로 모임
   dialog.querySelector('.afterword-close').addEventListener('click', () => dialog.close());
-  dialog.querySelector('.afterword-back').addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
 
   dialog.addEventListener('close', () => {
