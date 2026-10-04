@@ -123,7 +123,9 @@ function initAfterword(books) {
 
   async function fill(book) {
     dialog.querySelector('.afterword-cover').src = book.cover;
-    dialog.querySelector('.afterword-title').textContent = book.title;
+    // 화면에는 책 제목만, 스크린리더에는 "○○ 옮긴이 후기"로 읽히게
+    dialog.querySelector('.afterword-title').innerHTML =
+      `${escapeHtml(book.title)}<span class="sr-only"> 옮긴이 후기</span>`;
     dialog.querySelector('.afterword-sub').innerHTML =
       `${escapeHtml(book.publisher)} · ${formatDate(book.date)}` +
       (book.link ? ` · <a href="${book.link}" target="_blank" rel="noopener" aria-label="책 구입 (새 창에서 열림)">책 구입 ↗</a>` : '');
