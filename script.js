@@ -21,7 +21,7 @@ function initClickTracking() {
 // 책·논문·기사 목록이 화면에 처음 보였을 때 한 번씩 이벤트를 보냄.
 function initSectionViews() {
   if (!('IntersectionObserver' in window)) return;
-  const names = { 'book-list': 'books', 'paper-list': 'papers', 'article-list': 'articles' };
+  const names = { 'book-list': 'book', 'paper-list': 'paper', 'article-list': 'article' };
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
