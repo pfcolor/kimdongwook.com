@@ -50,13 +50,13 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
-// 《》「」〈〉는 한쪽이 비어 있어 글자 사이가 벌어져 보이므로 부호를 span(.bo 여는 쪽, .bc 닫는 쪽)으로 감싸
+// 《》「」〈〉『』는 한쪽이 비어 있어 글자 사이가 벌어져 보이므로 부호를 span(.bo 여는 쪽, .bc 닫는 쪽)으로 감싸
 // CSS로 빈 쪽을 접는다. 여는 부호 뒤에는 word joiner를 넣어 부호만 줄 끝에 남지 않게 한다(WebKit의 keep-all 대응).
 // 텍스트에만 쓸 것: 속성값에 넣으면 안 된다.
 function trimBrackets(text) {
   return text
-    .replace(/[《「〈]/g, '<span class="bo">$&</span>\u2060')
-    .replace(/[》」〉]/g, '<span class="bc">$&</span>');
+    .replace(/[《「〈『]/g, '<span class="bo">$&</span>\u2060')
+    .replace(/[》」〉』]/g, '<span class="bc">$&</span>');
 }
 
 function renderBooks(books) {
