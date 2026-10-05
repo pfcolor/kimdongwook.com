@@ -1,5 +1,37 @@
 // 이 파일은 건드릴 일이 거의 없음. 콘텐츠 추가는 /data/*.json 파일만 수정하면 됨.
 
+// Google Analytics 이벤트. gtag가 없으면(차단 등) 조용히 넘어감.
+function track(name, params) {
+  if (typeof gtag === 'function') gtag('event', name, params || {});
+}
+
+// data-track="이벤트명" 이 붙은 요소를 누르면(가운데 버튼 포함) 이벤트를 보냄. 나머지 data-*는 파라미터.
+function initClickTracking() {
+  const handler = e => {
+    if (e.type === 'auxclick' && e.button !== 1) return;
+    const el = e.target.closest('[data-track]');
+    if (!el) return;
+    const { track: name, ...params } = el.dataset;
+    track(name, params);
+  };
+  document.addEventListener('click', handler);
+  document.addEventListener('auxclick', handler);
+}
+
+// 책·논문·기사 목록이 화면에 처음 보였을 때 한 번씩 이벤트를 보냄.
+function initSectionViews() {
+  if (!('IntersectionObserver' in window)) return;
+  const names = { 'book-list': 'books', 'paper-list': 'papers', 'article-list': 'articles' };
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      observer.unobserve(entry.target);
+      track('list_view', { section: names[entry.target.id] });
+    });
+  }, { threshold: 0.1 });
+  Object.keys(names).forEach(id => observer.observe(document.getElementById(id)));
+}
+
 async function loadJSON(path) {
   const res = await fetch(path);
   if (!res.ok) throw new Error('불러오기 실패: ' + path);
@@ -22,13 +54,14 @@ function renderBooks(books) {
   const container = document.getElementById('book-list');
   container.innerHTML = books.map(b => {
     const cover = `<img class="cover${b.forthcoming ? ' forthcoming' : ''}" src="${b.cover}" alt="${b.title} 표지" loading="lazy">`;
-    const titleText = b.link ? `<a href="${b.link}" target="_blank" rel="noopener">${b.title}</a>` : b.title;
+    const buyTrack = `data-track="book_buy_click" data-item="${escapeHtml(b.title)}" data-location="list"`;
+    const titleText = b.link ? `<a href="${b.link}" target="_blank" rel="noopener" ${buyTrack}>${b.title}</a>` : b.title;
     const afterword = b.afterword ? ` · <a class="afterword-link" href="#afterword-${b.afterword}" aria-haspopup="dialog">옮긴이 후기</a>` : '';
     const sub = (b.forthcoming ? `${b.publisher} · 출간 예정` : `${b.publisher} · ${formatDate(b.date)}`) + afterword;
     return `
     <div class="book">
       ${b.link
-        ? `<a class="cover-link" href="${b.link}" target="_blank" rel="noopener">${cover}</a>`
+        ? `<a class="cover-link" href="${b.link}" target="_blank" rel="noopener" ${buyTrack}>${cover}</a>`
         : `<span class="cover-link">${cover}</span>`}
       <div>
         <div class="title">${titleText}</div>
@@ -39,10 +72,10 @@ function renderBooks(books) {
   }).join('');
 }
 
-function renderList(containerId, items) {
+function renderList(containerId, items, eventName) {
   const container = document.getElementById(containerId);
   container.innerHTML = items.map(item => `
-    <li><a href="${item.url}" target="_blank" rel="noopener" title="${escapeHtml(item.title)}">${item.title}</a><span class="date">${formatDate(item.date)}</span></li>
+    <li><a href="${item.url}" target="_blank" rel="noopener" title="${escapeHtml(item.title)}" data-track="${eventName}" data-item="${escapeHtml(item.title)}">${item.title}</a><span class="date">${formatDate(item.date)}</span></li>
   `).join('');
 }
 
@@ -89,6 +122,7 @@ function initReveal(btn) {
       return;
     }
     const revealedCount = Number(btn.dataset.next) - shown;
+    track('list_more_click', { section: container.id.replace('-list', ''), shown_after: Number(btn.dataset.next) });
     expanded = true;
     shown = Number(btn.dataset.next);
     render();
@@ -128,7 +162,7 @@ function initAfterword(books) {
       `${escapeHtml(book.title)}<span class="sr-only"> 옮긴이 후기</span>`;
     dialog.querySelector('.afterword-sub').innerHTML =
       `${escapeHtml(book.publisher)} · ${formatDate(book.date)}` +
-      (book.link ? ` · <a href="${book.link}" target="_blank" rel="noopener" aria-label="책 구입 (새 창에서 열림)">책 구입 ↗</a>` : '');
+      (book.link ? ` · <a href="${book.link}" target="_blank" rel="noopener" aria-label="책 구입 (새 창에서 열림)" data-track="book_buy_click" data-item="${escapeHtml(book.title)}" data-location="afterword">책 구입 ↗</a>` : '');
     body.innerHTML = '<p class="loading-state">불러오는 중…</p>';
     try {
       if (!cache[book.afterword]) {
@@ -156,7 +190,7 @@ function initAfterword(books) {
     if (!dialog.open) dialog.showModal();
     scroller.scrollTop = 0;
     scroller.focus({ preventScroll: true });
-    if (typeof gtag === 'function') gtag('event', 'afterword_open', { book: slug });
+    track('afterword_open', { book: slug });
   }
 
   document.getElementById('book-list').addEventListener('click', e => {
@@ -215,6 +249,7 @@ function initCopyButtons() {
         document.execCommand('copy');
         document.body.removeChild(textarea);
       }
+      track('email_copy');
       const toast = btn.parentElement.querySelector('.copy-toast');
       btn.classList.add('copied');
       toast.classList.add('show');
@@ -242,13 +277,15 @@ async function init() {
 
   renderBooks(books);
   initAfterword(books);
-  renderList('paper-list', papers);
-  renderList('article-list', articles);
+  renderList('paper-list', papers, 'paper_click');
+  renderList('article-list', articles, 'article_click');
 
   document.querySelectorAll('.more[data-target]').forEach(initReveal);
   updateCounts();
+  initSectionViews();
 }
 
+initClickTracking();
 initCopyButtons();
 
 init().catch(err => {
