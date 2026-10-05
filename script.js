@@ -50,6 +50,15 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;');
 }
 
+// 《》「」〈〉는 한쪽이 비어 있어 글자 사이가 벌어져 보이므로 부호를 span(.bo 여는 쪽, .bc 닫는 쪽)으로 감싸
+// CSS로 빈 쪽을 접는다. 여는 부호 뒤에는 word joiner를 넣어 부호만 줄 끝에 남지 않게 한다(WebKit의 keep-all 대응).
+// 텍스트에만 쓸 것: 속성값에 넣으면 안 된다.
+function trimBrackets(text) {
+  return text
+    .replace(/[《「〈]/g, '<span class="bo">$&</span>\u2060')
+    .replace(/[》」〉]/g, '<span class="bc">$&</span>');
+}
+
 function renderBooks(books) {
   const container = document.getElementById('book-list');
   container.innerHTML = books.map(b => {
@@ -75,7 +84,7 @@ function renderBooks(books) {
 function renderList(containerId, items, eventName) {
   const container = document.getElementById(containerId);
   container.innerHTML = items.map(item => `
-    <li><a href="${item.url}" target="_blank" rel="noopener" title="${escapeHtml(item.title)}" data-track="${eventName}" data-item="${escapeHtml(item.title)}">${item.title}</a><span class="date">${formatDate(item.date)}</span></li>
+    <li><a href="${item.url}" target="_blank" rel="noopener" title="${escapeHtml(item.title)}" data-track="${eventName}" data-item="${escapeHtml(item.title)}">${trimBrackets(item.title)}</a><span class="date">${formatDate(item.date)}</span></li>
   `).join('');
 }
 
@@ -186,7 +195,7 @@ function initAfterword(books) {
       body.innerHTML = cache[book.afterword].split('\n')
         .map(line => line.trim())
         .filter(line => line && !line.startsWith('#'))
-        .map(line => `<p>${smallGloss(escapeHtml(line))}</p>`)
+        .map(line => `<p>${trimBrackets(smallGloss(escapeHtml(line)))}</p>`)
         .join('');
     } catch (err) {
       console.error(err);
