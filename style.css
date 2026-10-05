@@ -426,6 +426,80 @@ ul.list .date{
   color:var(--ink-soft);
   font-variant-numeric: tabular-nums;
 }
+/* topic chips — a filter bar for the paper / article lists, not a section of its own */
+.topic-filter{ margin:-6px 0 36px; }
+.topic-label{  /* 항목(13px)과 구분되는 작은 레이블 — 위계는 올리지 않음 */
+  margin:0 0 6px;
+  font-size:11.5px;
+  letter-spacing:0.08em;
+  color:var(--ink-soft);
+}
+.tags{
+  font-size:13px;
+  line-height:2;
+}
+.tag-item{ white-space:nowrap; }
+.tag-item .sep{
+  color:var(--line);
+  margin:0 7px 0 8px;
+}
+.tag{
+  position:relative;
+  font-family:inherit;
+  font-size:inherit;
+  line-height:1.4;
+  color:var(--ink-soft);
+  background:none;
+  border:none;
+  border-bottom:1px solid transparent;
+  border-radius:0;
+  padding:0;
+  cursor:pointer;
+}
+.tag::after{  /* 글자보다 넓은 클릭 영역 */
+  content:"";
+  position:absolute;
+  inset:-6px -4px;
+}
+.tag .n{
+  margin-left:4px;
+  font-size:11.5px;
+  font-variant-numeric:tabular-nums;
+  opacity:0.75;
+}
+.tag:hover{ color:var(--accent); }
+.tag[aria-pressed="true"]{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+.tag:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+/* 논문·기사 섹션 안의 하위 목록 — 섹션 제목보다 한 단계 낮은 산세리프 소제목 */
+.sublist + .sublist{ margin-top:44px; }
+.sub-head{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  padding-bottom:4px;
+  border-bottom:1px solid var(--ink);
+}
+.sub-head h3{
+  margin:0;
+  font-size:14.5px;
+  font-weight:500;
+  letter-spacing:0.02em;
+}
+.sub-head .count{
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.count .count-tag{ color:var(--accent); }
+.filter-empty{
+  margin:12px 0 0;
+  font-size:14px;
+  color:var(--ink-soft);
+}
+.filter-empty[hidden]{ display:none; }
+
 .more{
   margin-top:16px;
   font-size:13px;

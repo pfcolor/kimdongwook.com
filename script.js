@@ -81,9 +81,7 @@ function renderList(containerId, items, eventName) {
 
 function initReveal(btn) {
   const container = document.querySelector(btn.dataset.target);
-  const items = Array.from(container.children);
   const steps = btn.dataset.steps.split(',').map(Number);
-  const total = items.length;
   let shown = 0;
   let expanded = false;
 
@@ -93,7 +91,13 @@ function initReveal(btn) {
   announcer.setAttribute('aria-live', 'polite');
   btn.insertAdjacentElement('afterend', announcer);
 
+  // 주제 필터에서 빠진 항목(.is-filtered)은 세지도 보여 주지도 않음
+  const visibleItems = () => Array.from(container.children).filter(el => !el.classList.contains('is-filtered'));
+
   function render() {
+    const items = visibleItems();
+    const total = items.length;
+    Array.from(container.children).forEach(el => { el.style.display = 'none'; });
     items.forEach((el, i) => { el.style.display = i < shown ? '' : 'none'; });
     if (shown >= total) {
       if (!expanded) {
@@ -118,7 +122,7 @@ function initReveal(btn) {
 
   btn.addEventListener('click', () => {
     if (btn.classList.contains('is-top')) {
-      container.closest('section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
     const revealedCount = Number(btn.dataset.next) - shown;
@@ -126,12 +130,20 @@ function initReveal(btn) {
     expanded = true;
     shown = Number(btn.dataset.next);
     render();
+    const total = visibleItems().length;
     announcer.textContent = shown >= total
       ? `${revealedCount}개를 더 표시했습니다. 전체 ${total}개를 모두 표시했습니다.`
       : `${revealedCount}개를 더 표시했습니다.`;
   });
 
-  shown = Math.min(steps[0], total);
+  // 주제를 고르면 걸러진 항목을 모두 펼치고, 해제하면 처음 개수로 되돌림
+  btn.resetReveal = showAll => {
+    expanded = false;
+    shown = showAll ? Infinity : steps[0];
+    render();
+  };
+
+  shown = steps[0];
   render();
 }
 
@@ -228,8 +240,58 @@ function initAfterword(books) {
 function updateCounts() {
   document.querySelectorAll('[data-count-for]').forEach(el => {
     const target = document.querySelector(el.dataset.countFor);
-    if (target) el.textContent = target.children.length;
+    if (!target) return;
+    const total = target.children.length;
+    const shown = target.querySelectorAll(':scope > :not(.is-filtered)').length;
+    const tag = document.querySelector('.tag[aria-pressed="true"]')?.dataset.tag;
+    if (shown === total || !tag) el.textContent = total;
+    else el.innerHTML = `<span class="count-tag">${escapeHtml(tag)}</span> ${shown} / ${total}`;
   });
+}
+
+// 주제 칩. 누르면 논문·기사 목록을 그 주제로 거르고, 다시 누르거나 '전체'를 누르면 해제.
+// 칩은 data/*.json의 tags에서 만들어지고 항목이 많은 주제부터 놓임.
+function initTagFilter(papers, articles) {
+  const lists = [
+    { el: document.getElementById('paper-list'), items: papers, name: '논문' },
+    { el: document.getElementById('article-list'), items: articles, name: '기사' },
+  ];
+  const counts = {};
+  [...papers, ...articles].forEach(item => (item.tags || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+  const tags = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+
+  const group = document.getElementById('tag-list');
+  const status = document.getElementById('tag-status');
+  // 헤더 링크 줄처럼 '·'로 잇되, 줄바꿈은 항목 사이에서만 일어나게 항목과 구분자를 한 덩어리로 묶음
+  const chip = (tag, label, n, last) =>
+    `<span class="tag-item"><button type="button" class="tag" data-tag="${escapeHtml(tag)}" aria-pressed="${tag === ''}">${label}<span class="n">${n}</span></button>${last ? '' : '<span class="sep" aria-hidden="true">·</span>'}</span>`;
+  group.innerHTML = [chip('', '전체', papers.length + articles.length), ...tags.map((t, i) => chip(t, t, counts[t], i === tags.length - 1))].join(' ');
+
+  let current = '';
+  group.addEventListener('click', e => {
+    const btn = e.target.closest('.tag');
+    if (!btn) return;
+    apply(btn.dataset.tag === current ? '' : btn.dataset.tag);
+  });
+
+  function apply(tag) {
+    current = tag;
+    group.querySelectorAll('.tag').forEach(b => b.setAttribute('aria-pressed', b.dataset.tag === tag));
+    const summary = lists.map(({ el, items, name }) => {
+      let matches = 0;
+      Array.from(el.children).forEach((li, i) => {
+        const hit = !tag || (items[i].tags || []).includes(tag);
+        li.classList.toggle('is-filtered', !hit);
+        if (hit) matches++;
+      });
+      el.parentElement.querySelector('.more').resetReveal(!!tag);
+      el.parentElement.querySelector('.filter-empty').hidden = matches > 0;
+      return `${name} ${matches}편`;
+    });
+    updateCounts();
+    if (tag) track('tag_filter', { tag });
+    status.textContent = tag ? `${tag}: ${summary.join(', ')}` : '모든 주제를 표시합니다.';
+  }
 }
 
 function initCopyButtons() {
@@ -281,6 +343,7 @@ async function init() {
   renderList('article-list', articles, 'article_click');
 
   document.querySelectorAll('.more[data-target]').forEach(initReveal);
+  initTagFilter(papers, articles);
   updateCounts();
   initSectionViews();
 }

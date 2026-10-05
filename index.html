@@ -124,25 +124,37 @@
   <section>
     <div class="eyebrow">
       <div class="tab"></div>
-      <h2>논문</h2>
-      <span class="count" data-count-for="#paper-list"></span>
+      <h2>논문·기사</h2>
     </div>
-    <ul class="list" id="paper-list"><li class="loading-state">불러오는 중…</li></ul>
-    <button class="more" id="paper-more" data-target="#paper-list" data-steps="5,50,100,150" hidden>
-      <span class="label"></span><span class="arrow">▾</span>
-    </button>
-  </section>
+    <div class="topic-filter">
+      <p class="topic-label" id="tag-label">주제별로 보기</p>
+      <div class="tags" id="tag-list" role="group" aria-labelledby="tag-label"></div>
+      <span class="sr-only" id="tag-status" role="status" aria-live="polite"></span>
+    </div>
 
-  <section>
-    <div class="eyebrow">
-      <div class="tab"></div>
-      <h2>기사</h2>
-      <span class="count" data-count-for="#article-list"></span>
+    <div class="sublist">
+      <div class="sub-head">
+        <h3>논문</h3>
+        <span class="count" data-count-for="#paper-list"></span>
+      </div>
+      <ul class="list" id="paper-list"><li class="loading-state">불러오는 중…</li></ul>
+      <p class="filter-empty" hidden>이 주제의 논문은 없습니다.</p>
+      <button class="more" id="paper-more" data-target="#paper-list" data-steps="5,50,100,150" hidden>
+        <span class="label"></span><span class="arrow">▾</span>
+      </button>
     </div>
-    <ul class="list" id="article-list"><li class="loading-state">불러오는 중…</li></ul>
-    <button class="more" id="article-more" data-target="#article-list" data-steps="5,50,100,150" hidden>
-      <span class="label"></span><span class="arrow">▾</span>
-    </button>
+
+    <div class="sublist">
+      <div class="sub-head">
+        <h3>기사</h3>
+        <span class="count" data-count-for="#article-list"></span>
+      </div>
+      <ul class="list" id="article-list"><li class="loading-state">불러오는 중…</li></ul>
+      <p class="filter-empty" hidden>이 주제의 기사는 없습니다.</p>
+      <button class="more" id="article-more" data-target="#article-list" data-steps="5,50,100,150" hidden>
+        <span class="label"></span><span class="arrow">▾</span>
+      </button>
+    </div>
   </section>
 
   <footer>
