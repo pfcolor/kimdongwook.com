@@ -1,6 +1,8 @@
 [
   {
     "title": "영국은 나의 것",
+    "author": "니컬러스 파담시",
+    "original": "England Is Mine",
     "publisher": "롤러코스터",
     "date": "2025-11-10",
     "cover": "assets/img/9791191311693.jpg",
@@ -9,6 +11,8 @@
   },
   {
     "title": "전후 공산당의 배신",
+    "author": "이언 버철",
+    "original": "Workers against the Monolith",
     "publisher": "책갈피",
     "date": "2025-02-05",
     "cover": "assets/img/9788979662764.jpg",
@@ -16,6 +20,7 @@
   },
   {
     "title": "Israel on the Brink",
+    "author": "일란 파페",
     "publisher": "교유서가",
     "date": "2026-10-31",
     "forthcoming": true,
@@ -24,6 +29,7 @@
   },
   {
     "title": "Free to Be",
+    "author": "잭 터번",
     "publisher": "글항아리",
     "date": "2026-11-30",
     "forthcoming": true,

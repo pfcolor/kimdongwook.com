@@ -59,21 +59,27 @@ function trimBrackets(text) {
     .replace(/[》」〉』]/g, '<span class="bc">$&</span>');
 }
 
+function bookByline(b) {
+  return (b.author ? `${escapeHtml(b.author)} 지음 · ` : '') + escapeHtml(b.publisher);
+}
+
 function renderBooks(books) {
   const container = document.getElementById('book-list');
   container.innerHTML = books.map(b => {
     const cover = `<img class="cover${b.forthcoming ? ' forthcoming' : ''}" src="${b.cover}" alt="${b.title} 표지" loading="lazy">`;
     const buyTrack = `data-track="book_buy_click" data-item="${escapeHtml(b.title)}" data-location="list"`;
     const titleText = b.link ? `<a href="${b.link}" target="_blank" rel="noopener" ${buyTrack}>${b.title}</a>` : b.title;
+    // 원제는 마우스를 올렸을 때만 보여 준다
+    const original = b.original ? ` title="원제: ${escapeHtml(b.original)}"` : '';
     const afterword = b.afterword ? ` · <a class="afterword-link" href="#afterword-${b.afterword}" aria-haspopup="dialog">옮긴이 후기</a>` : '';
-    const sub = (b.forthcoming ? `${b.publisher} · 출간 예정` : `${b.publisher} · ${formatDate(b.date)}`) + afterword;
+    const sub = bookByline(b) + (b.forthcoming ? ' · 출간 예정' : ` · ${formatDate(b.date)}`) + afterword;
     return `
     <div class="book">
       ${b.link
         ? `<a class="cover-link" href="${b.link}" target="_blank" rel="noopener" ${buyTrack}>${cover}</a>`
         : `<span class="cover-link">${cover}</span>`}
       <div>
-        <div class="title">${titleText}</div>
+        <div class="title"${original}>${titleText}</div>
         <div class="sub">${sub}</div>
       </div>
     </div>
@@ -182,7 +188,7 @@ function initAfterword(books) {
     dialog.querySelector('.afterword-title').innerHTML =
       `${escapeHtml(book.title)}<span class="sr-only"> 옮긴이 후기</span>`;
     dialog.querySelector('.afterword-sub').innerHTML =
-      `${escapeHtml(book.publisher)} · ${formatDate(book.date)}` +
+      `${bookByline(book)} · ${formatDate(book.date)}` +
       (book.link ? ` · <a href="${book.link}" target="_blank" rel="noopener" aria-label="책 구입 (새 창에서 열림)" data-track="book_buy_click" data-item="${escapeHtml(book.title)}" data-location="afterword">책 구입 ↗</a>` : '');
     body.innerHTML = '<p class="loading-state">불러오는 중…</p>';
     try {
