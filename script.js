@@ -314,6 +314,8 @@ function initCopyButtons() {
     let resetTimer;
     btn.addEventListener('click', async () => {
       const text = btn.dataset.copy;
+      // 클립보드가 응답하지 않아도 클릭은 기록되도록 복사보다 먼저 보낸다.
+      track('email_copy');
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -326,7 +328,6 @@ function initCopyButtons() {
         document.execCommand('copy');
         document.body.removeChild(textarea);
       }
-      track('email_copy');
       const toast = btn.parentElement.querySelector('.copy-toast');
       btn.classList.add('copied');
       toast.classList.add('show');
