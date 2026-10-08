@@ -447,11 +447,7 @@ ul.list .date{
   word-break:keep-all;
 }
 .section-note .dot{ margin:0 0.2em; }
-.topic-filter{
-  margin:16px 0 22px;
-  padding-top:16px;
-  border-top:1px solid var(--line);
-}
+.topic-filter{ margin:0 0 22px; }
 .topic-label{  /* 항목(13px)과 구분되는 작은 레이블 — 위계는 올리지 않음 */
   margin:0 0 6px;
   font-size:12.5px;
