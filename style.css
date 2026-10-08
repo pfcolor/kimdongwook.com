@@ -438,7 +438,7 @@ ul.list .date{
   color:var(--ink-soft);
   word-break:keep-all;
 }
-.topic-filter{ margin:-6px 0 36px; }
+.topic-filter{ margin:10px 0 36px; }
 .topic-label{  /* 항목(13px)과 구분되는 작은 레이블 — 위계는 올리지 않음 */
   margin:0 0 6px;
   font-size:12.5px;
