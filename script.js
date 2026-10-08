@@ -1,8 +1,9 @@
 // 이 파일은 건드릴 일이 거의 없음. 콘텐츠 추가는 /data/*.json 파일만 수정하면 됨.
 
 // Google Analytics 이벤트. gtag가 없으면(차단 등) 조용히 넘어감.
+// 메일 링크처럼 다른 앱으로 넘어가는 클릭도 전송이 끊기지 않도록 beacon으로 보낸다.
 function track(name, params) {
-  if (typeof gtag === 'function') gtag('event', name, params || {});
+  if (typeof gtag === 'function') gtag('event', name, { transport_type: 'beacon', ...params });
 }
 
 // data-track="이벤트명" 이 붙은 요소를 누르면(가운데 버튼 포함) 이벤트를 보냄. 나머지 data-*는 파라미터.
