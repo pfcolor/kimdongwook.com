@@ -446,7 +446,7 @@ ul.list .date{
   color:var(--ink-soft);
   word-break:keep-all;
 }
-.section-note .dot{ margin:0 0.2em; }
+.section-note .dot{ margin:0 0.05em; }
 .topic-filter{ margin:0 0 22px; }
 .topic-label{  /* 항목(13px)과 구분되는 작은 레이블 — 위계는 올리지 않음 */
   margin:0 0 6px;
@@ -455,9 +455,9 @@ ul.list .date{
   letter-spacing:0.1em;
   color:var(--ink-soft);  /* 아래 태그와 같은 색 */
 }
-.topic-label::before{  /* 항목과 다른 종류의 글임을 알리는 기호 */
-  content:"▸";
-  margin-right:0.5em;
+.topic-label::after{  /* 아래 항목이 펼쳐진다는 표시 */
+  content:"▾";
+  margin-left:0.5em;
   letter-spacing:0;
 }
 .tags{
