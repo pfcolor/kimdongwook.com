@@ -432,18 +432,31 @@ ul.list .date{
   font-variant-numeric: tabular-nums;
 }
 /* topic chips — a filter bar for the paper / article lists, not a section of its own */
+.eyebrow-text{  /* 제목 옆 안내문 — 좁은 화면에서는 제목 아래로 내려감 */
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  column-gap:10px;
+  row-gap:2px;
+}
+.eyebrow:has(.eyebrow-text){ align-items:flex-start; }
+.eyebrow:has(.eyebrow-text) .tab{ margin-top:7px; }
 .section-note{
-  margin:-20px 0 26px;
-  font-size:12.5px;
+  font-size:12px;
   color:var(--ink-soft);
   word-break:keep-all;
 }
-.topic-filter{ margin:27px 0 22px; }
+.section-note .dot{ margin:0 0.2em; }
+.topic-filter{
+  margin:16px 0 22px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
 .topic-label{  /* 항목(13px)과 구분되는 작은 레이블 — 위계는 올리지 않음 */
   margin:0 0 6px;
   font-size:12.5px;
   letter-spacing:0.08em;
-  color:var(--ink-soft);
+  color:var(--ink);  /* 위 안내문·아래 태그(ink-soft)와 구분 */
 }
 .tags{
   font-size:13px;
