@@ -452,7 +452,7 @@ ul.list .date{
   margin:0 0 6px;
   font-size:12.5px;
   letter-spacing:0.08em;
-  color:var(--ink);  /* 위 안내문·아래 태그(ink-soft)와 구분 */
+  color:var(--ink-soft);  /* 아래 태그와 같은 색 */
 }
 .tags{
   font-size:13px;
