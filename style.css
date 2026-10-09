@@ -451,14 +451,18 @@ ul.list .date{
 .topic-label{  /* 항목(13px)과 구분되는 작은 레이블 — 위계는 올리지 않음 */
   margin:0 0 6px;
   font-size:12.5px;
-  font-weight:500;
+  font-weight:400;
   letter-spacing:0.1em;
-  color:var(--ink-soft);  /* 아래 태그와 같은 색 */
+  color:var(--ink);  /* 아래 흐린 태그와 구분 */
 }
-.topic-label::after{  /* 아래 항목이 펼쳐진다는 표시 */
-  content:"▾";
-  margin-left:0.5em;
-  letter-spacing:0;
+.topic-label::before{  /* 레이블 위 짧은 가로선 — 섹션 제목의 세로 .tab과 겹치지 않는 강조 */
+  content:"";
+  display:block;
+  width:14px;
+  height:2px;
+  margin-bottom:5px;
+  background:var(--accent);
+  border-radius:1px;
 }
 .tags{
   font-size:13px;
