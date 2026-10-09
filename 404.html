@@ -9,23 +9,25 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@800&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#F5F4F2;--ink:#232220;--ink-soft:#62605c;--accent:#2F5F92;}
-*{box-sizing:border-box;}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',sans-serif;-webkit-font-smoothing:antialiased;line-height:1.65;}
-.wrap{max-width:660px;margin:0 auto;padding:88px 24px 120px;}
-.code{margin:0 0 12px;font-family:'Nanum Myeongjo',serif;font-weight:800;font-size:56px;line-height:1.1;}
-h1{margin:0 0 16px;font-size:20px;font-weight:500;}
-p{margin:0 0 28px;color:var(--ink-soft);}
-a{color:var(--accent);}
-</style>
+<link rel="stylesheet" href="/style.css">
+<style>.photo{cursor:default;}</style>
 </head>
 <body>
 <div class="wrap">
-  <div class="code">404</div>
-  <h1>페이지를 찾을 수 없습니다</h1>
-  <p>주소가 바뀌었거나 없어진 페이지입니다.</p>
-  <a href="/">번역가 김동욱 홈으로 돌아가기</a>
+
+  <header>
+    <div class="photo-wrap">
+      <img class="photo" src="/assets/img/profile.jpg" alt="김동욱 프로필 사진">
+    </div>
+    <div>
+      <h1>404</h1>
+      <p class="intro">
+        페이지를 찾을 수 없습니다. <span class="nowrap">주소가 바뀌었거나</span> 없는 페이지입니다.<br>
+        <a href="/">번역가 김동욱 포트폴리오 <span class="nowrap">홈페이지로 돌아가기</span></a>
+      </p>
+    </div>
+  </header>
+
 </div>
 </body>
 </html>
