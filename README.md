@@ -9,6 +9,7 @@ data/books.json      책 목록 ← 새 책 나오면 여기 추가
 data/papers.json     논문 목록 ← 새 논문 나오면 여기 추가
 data/articles.json   기사 목록 ← 새 기사 나오면 여기 추가
 assets/img/          프로필 사진, 책 표지 이미지
+scripts/prerender.mjs  JSON 목록을 index.html에 미리 채워 넣는 스크립트 (아래 '프리렌더' 참고)
 ```
 
 ## 콘텐츠 추가하는 법
@@ -38,3 +39,9 @@ GitHub Pages에 배포된 실제 사이트에서는 이 과정 필요 없이 그
 
 ## 배포
 GitHub Pages가 push할 때마다 자동 반영. 별도 빌드 과정 없음.
+
+## 프리렌더
+책·논문·기사 목록은 브라우저에서 `script.js`가 그리지만, JS를 실행하지 않는 검색 로봇(네이버 등)과 링크 미리보기 봇을 위해
+같은 목록을 `index.html`에도 미리 채워 둔다. `<!--prerender:…-->` 주석 사이가 그 구간이며, 직접 고치지 않는다.
+`data/*.json`을 푸시하면 GitHub Action이 `node scripts/prerender.mjs`를 돌려 `index.html`을 갱신해 커밋한다.
+로컬에서 확인하려면 같은 명령을 직접 실행하면 된다.

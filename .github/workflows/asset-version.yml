@@ -1,13 +1,19 @@
-# style.css / script.js가 바뀌어 푸시되면 index.html의 ?v= 값을 두 파일 내용의 해시로 갱신한다.
-# 브라우저(특히 iOS Safari)가 캐시된 옛 파일을 계속 쓰는 것을 막으려는 것이다.
+# 푸시될 때 index.html을 자동으로 갱신한다.
+#  1) data/*.json이 바뀌면 책·논문·기사 목록을 index.html에 미리 채워 넣는다(scripts/prerender.mjs).
+#  2) style.css / script.js가 바뀌면 ?v= 값을 두 파일 내용의 해시로 갱신한다.
+#     브라우저(특히 iOS Safari)가 캐시된 옛 파일을 계속 쓰는 것을 막으려는 것이다.
 # index.html만 바뀌는 봇 커밋은 paths 조건에 걸리지 않으므로 이 워크플로가 다시 돌지 않는다.
 name: Update asset version
 
 on:
   push:
     branches: [master]
-    paths: [style.css, script.js]
+    paths: [style.css, script.js, data/*.json, scripts/prerender.mjs]
   workflow_dispatch:
+
+# 연달아 푸시해도 index.html 커밋이 서로 엉키지 않게 한 번에 하나씩 돌린다.
+concurrency:
+  group: update-index
 
 permissions:
   contents: write
@@ -18,6 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Prerender lists into index.html
+        run: node scripts/prerender.mjs
 
       - name: Rewrite ?v= in index.html
         run: |
@@ -35,7 +44,8 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Update asset version"
+          git commit -am "Update index.html (prerendered lists, asset version)"
+          git pull --rebase
           git push
           # GITHUB_TOKEN으로 푸시한 커밋은 Pages 빌드를 자동으로 일으키지 않을 수 있어 직접 요청한다
           gh api -X POST "repos/${{ github.repository }}/pages/builds"
